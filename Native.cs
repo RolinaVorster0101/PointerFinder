@@ -48,6 +48,17 @@ static class Native
     public static extern bool SetWindowPos(nint hWnd, nint insertAfter, int x, int y, int cx, int cy, uint flags);
 
     [DllImport("user32.dll")]
+    public static extern nint CreateCursor(nint hInst, int xHotSpot, int yHotSpot, int width, int height, byte[] andPlane, byte[] xorPlane);
+
+    [DllImport("user32.dll")]
+    public static extern bool SetSystemCursor(nint hCursor, uint id);   // takes ownership of (destroys) hCursor
+
+    [DllImport("user32.dll")]
+    public static extern bool SystemParametersInfo(uint action, uint param, nint vparam, uint winIni);
+
+    public const uint SPI_SETCURSORS = 0x0057;
+
+    [DllImport("user32.dll")]
     public static extern int GetWindowLong(nint hWnd, int index);
 
     [DllImport("user32.dll")]

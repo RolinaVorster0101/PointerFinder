@@ -7,10 +7,12 @@ namespace PointerFinder;
 /// </summary>
 sealed class ShakeDetector
 {
-    const int WindowMs = 800;
+    const int WindowMs = 700;
 
-    // index = sensitivity (0 low, 1 medium, 2 high): min travel per swing in px, reversals needed
-    static readonly (int MinTravel, int Reversals)[] Presets = { (45, 5), (30, 4), (20, 3) };
+    // index = sensitivity (0 low, 1 medium, 2 high): min travel per swing in px, reversals needed.
+    // Everyday back-and-forth (correcting an aim, scrubbing a slider) stays well below these;
+    // a real shake is 5+ big, fast swings.
+    static readonly (int MinTravel, int Reversals)[] Presets = { (140, 6), (90, 5), (55, 4) };
 
     readonly Axis _x = new();
     readonly Axis _y = new();

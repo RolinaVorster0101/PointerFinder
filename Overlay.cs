@@ -18,14 +18,14 @@ sealed class Overlay : Window
 {
     const double NormalHeight = 26;   // DIPs: height of the regular cursor, so Scale = 4 means "4x bigger"
     const double Pad = 30;            // room around the arrow for the glow
-    const double SmallScale = 0.25;   // the size it grows from and shrinks back to
     const long StillMs = 250;         // how long the mouse must be still before the shrink starts
     const long MaxBigMs = 5000;       // after this long since the last shake it shrinks even if the mouse keeps moving
 
     enum Phase { Hidden, Big, Shrinking }
 
     readonly Image _image;
-    readonly ScaleTransform _scale = new(SmallScale, SmallScale);
+    readonly ScaleTransform _scale = new(0.25, 0.25);
+    double _small = 0.25;             // scale that equals a normal-sized pointer (1 / Scale): it grows from and shrinks back to this
     readonly DispatcherTimer _tick = new() { Interval = TimeSpan.FromMilliseconds(40) };
     readonly double _aspect;
     Phase _phase = Phase.Hidden;
@@ -79,6 +79,7 @@ sealed class Overlay : Window
         Width = _image.Width + Pad * 2;
         Height = h + Pad * 2;
         _shrinkSeconds = shrinkSeconds;
+        _small = 1.0 / scale;
     }
 
     /// <summary>A shake was recognised (or the user asked for it): show the big pointer.</summary>
@@ -89,6 +90,10 @@ sealed class Overlay : Window
         _generation++;
         if (_phase == Phase.Hidden)
         {
+            _scale.BeginAnimation(ScaleTransform.ScaleXProperty, null);
+            _scale.BeginAnimation(ScaleTransform.ScaleYProperty, null);
+            _scale.ScaleX = _scale.ScaleY = _small;
+            SystemCursor.Hide();   // the overlay stands in for the real pointer while it is big
             Show();
             Follow();
             CompositionTarget.Rendering += OnRendering;
@@ -127,24 +132,28 @@ sealed class Overlay : Window
         BeginAnimation(OpacityProperty, new DoubleAnimation(1, TimeSpan.FromMilliseconds(120)));
     }
 
-    /// <summary>Slow shrink back to normal size, fading out over the second half.</summary>
+    /// <summary>
+    /// Slow shrink down to normal pointer size, then hand over to the real pointer. The glow fades in the last fifth
+    /// so the swap back to the real pointer is not noticeable.
+    /// </summary>
     void Shrink()
     {
         _phase = Phase.Shrinking;
         int generation = ++_generation;
         var length = TimeSpan.FromSeconds(_shrinkSeconds);
-        var shrink = new DoubleAnimation(SmallScale, length) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } };
+        var shrink = new DoubleAnimation(_small, length) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } };
         shrink.Completed += (_, _) =>
         {
             if (generation != _generation) return;
             _tick.Stop();
             CompositionTarget.Rendering -= OnRendering;
             Hide();
+            SystemCursor.Restore();
             _phase = Phase.Hidden;
         };
         _scale.BeginAnimation(ScaleTransform.ScaleXProperty, shrink);
         _scale.BeginAnimation(ScaleTransform.ScaleYProperty, shrink.Clone());
-        BeginAnimation(OpacityProperty, new DoubleAnimation(0, TimeSpan.FromSeconds(_shrinkSeconds * 0.5)) { BeginTime = TimeSpan.FromSeconds(_shrinkSeconds * 0.5) });
+        BeginAnimation(OpacityProperty, new DoubleAnimation(0, TimeSpan.FromSeconds(_shrinkSeconds * 0.2)) { BeginTime = TimeSpan.FromSeconds(_shrinkSeconds * 0.8) });
     }
 
     void OnRendering(object? sender, EventArgs e) => Follow();

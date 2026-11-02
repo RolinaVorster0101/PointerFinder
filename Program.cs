@@ -10,6 +10,11 @@ static class Program
         using var single = new Mutex(true, "PointerFinder.Singleton", out bool first);
         if (!first) return;
 
+        // never leave the real pointer hidden: restore at start (in case a previous run was killed), on exit and on crashes
+        SystemCursor.Restore();
+        AppDomain.CurrentDomain.ProcessExit += (_, _) => SystemCursor.Restore();
+        AppDomain.CurrentDomain.UnhandledException += (_, _) => SystemCursor.Restore();
+
         var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
         var settings = Settings.Load();
         var overlay = new Overlay();
