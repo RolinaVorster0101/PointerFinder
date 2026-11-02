@@ -59,3 +59,8 @@ rebuild to match another theme. A per-user override file is a possible later add
 ## Planned
 
 - Becomes a module of the manager app.
+
+## Fresh Windows
+
+Setting up everything again after a reinstall (theme, PCSteward, temperatures, Pointer Finder): see `docs/SETUP.md` in the PCSteward repository, https://github.com/RolinaVorster0101/PCSteward.
+
