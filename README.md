@@ -1,17 +1,25 @@
-# Rosewood Pointer Finder
+# Pointer Finder
 
-Shake the mouse and your pointer pops up large, with a pink glow, so you can find it on a big screen.
-It uses the Rosewood Midnight arrow, stays for a couple of seconds after the last shake, then shrinks away.
-A small tray app; no admin rights needed.
+Shake the mouse and your pointer pops up large, with a soft glow, so you can find it on a big screen.
+It stays big while you move, then slowly shrinks back once the mouse is still.
+A small tray app; no admin rights needed. Theme-independent: it only draws an arrow image, so any theme
+can supply its own (see "Changing the arrow").
 
 ## Run
 
 ```powershell
 dotnet build -c Release
-.\bin\Release\net10.0-windows\RosewoodPointerFinder.exe
+.\bin\Release\net10.0-windows\PointerFinder.exe
 ```
 
-Look for the pink arrow in the system tray (it may be under the `^` overflow arrow).
+Look for the arrow in the system tray (it may be under the `^` overflow arrow).
+
+## Behaviour
+
+1. Shake the mouse: the big pointer pops in, tip on the real pointer.
+2. It stays big while the mouse moves, for at most 5 seconds after the last shake.
+3. When the mouse is still for about a quarter of a second it starts shrinking slowly and fades out.
+4. Moving again while it shrinks makes it grow back. A new shake restarts everything.
 
 ## Tray menu
 
@@ -20,12 +28,12 @@ Look for the pink arrow in the system tray (it may be under the `^` overflow arr
 | Show pointer now (or left-click the icon) | Test the effect without shaking |
 | Shake to find is on | Turn the feature on or off |
 | Size | Medium 3x, Large 4x (default), Huge 6x |
-| Stays for | 1, 2 (default), 3 or 5 seconds after the last shake |
+| Shrinks over | How long the slow shrink takes: 1, 2 (default), 3 or 5 seconds |
 | Sensitivity | Low, Medium (default), High |
 | Start with Windows | Adds or removes a `Run` entry in `HKCU` |
 | Exit | Quit |
 
-Settings are saved in `%APPDATA%\RosewoodPointerFinder\settings.json`.
+Settings are saved in `%APPDATA%\PointerFinder\settings.json`.
 
 ## How it works
 
@@ -34,6 +42,11 @@ Settings are saved in `%APPDATA%\RosewoodPointerFinder\settings.json`.
   minimum distance, which is what the sensitivity setting changes.
 - `Overlay` is a click-through, always-on-top transparent window that draws a scaled copy of the arrow. The arrow's
   tip is the scaling origin, so the tip stays exactly on the real pointer. The real pointer is not touched.
+
+## Changing the arrow
+
+The arrow is `Assets/arrow.png` (currently the Rosewood Midnight arrow), compiled into the app. Replace it and
+rebuild to match another theme. A per-user override file is a possible later addition.
 
 ## Limits
 
@@ -44,4 +57,4 @@ Settings are saved in `%APPDATA%\RosewoodPointerFinder\settings.json`.
 
 ## Planned
 
-- Becomes a module of the Rosewood manager app.
+- Becomes a module of the manager app.

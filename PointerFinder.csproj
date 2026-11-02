@@ -7,10 +7,10 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
-    <AssemblyName>RosewoodPointerFinder</AssemblyName>
+    <AssemblyName>PointerFinder</AssemblyName>
     <RootNamespace>PointerFinder</RootNamespace>
     <Version>0.1.0</Version>
-    <Product>Rosewood Pointer Finder</Product>
+    <Product>Pointer Finder</Product>
     <Description>Shake the mouse to enlarge the pointer so you can find it</Description>
     <ApplicationIcon>Assets\app.ico</ApplicationIcon>
     <ApplicationManifest>app.manifest</ApplicationManifest>

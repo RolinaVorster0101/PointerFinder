@@ -8,7 +8,7 @@ namespace PointerFinder;
 sealed class Tray : IDisposable
 {
     const string RunKey = @"Software\Microsoft\Windows\CurrentVersion\Run";
-    const string RunName = "RosewoodPointerFinder";
+    const string RunName = "PointerFinder";
 
     readonly Settings _settings;
     readonly Overlay _overlay;
@@ -39,8 +39,8 @@ sealed class Tray : IDisposable
 
         menu.Items.Add(Choice("Size", _settings.Scale, new[] { (3, "Medium (3x)"), (4, "Large (4x)"), (6, "Huge (6x)") },
             v => { _settings.Scale = v; Apply(); }));
-        menu.Items.Add(Choice("Stays for", (int)_settings.HoldSeconds, new[] { (1, "1 second"), (2, "2 seconds"), (3, "3 seconds"), (5, "5 seconds") },
-            v => { _settings.HoldSeconds = v; Apply(); }));
+        menu.Items.Add(Choice("Shrinks over", (int)_settings.ShrinkSeconds, new[] { (1, "1 second"), (2, "2 seconds"), (3, "3 seconds"), (5, "5 seconds") },
+            v => { _settings.ShrinkSeconds = v; Apply(); }));
         menu.Items.Add(Choice("Sensitivity", _settings.Sensitivity, new[] { (0, "Low"), (1, "Medium"), (2, "High") },
             v => { _settings.Sensitivity = v; Apply(); }));
 
@@ -54,7 +54,7 @@ sealed class Tray : IDisposable
         _icon = new Forms.NotifyIcon
         {
             Icon = LoadIcon(),
-            Text = "Rosewood Pointer Finder - shake the mouse",
+            Text = "Pointer Finder - shake the mouse",
             ContextMenuStrip = menu,
             Visible = true,
         };
@@ -64,7 +64,7 @@ sealed class Tray : IDisposable
 
     void Apply()
     {
-        _overlay.Configure(_settings.Scale, _settings.HoldSeconds);
+        _overlay.Configure(_settings.Scale, _settings.ShrinkSeconds);
         _detector.Sensitivity = _settings.Sensitivity;
         _settings.Save();
     }

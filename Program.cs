@@ -7,7 +7,7 @@ static class Program
     [STAThread]
     static void Main()
     {
-        using var single = new Mutex(true, "RosewoodPointerFinder.Singleton", out bool first);
+        using var single = new Mutex(true, "PointerFinder.Singleton", out bool first);
         if (!first) return;
 
         var app = new Application { ShutdownMode = ShutdownMode.OnExplicitShutdown };
@@ -18,6 +18,7 @@ static class Program
         using var hook = new MouseHook();
         hook.Moved += (x, y) =>
         {
+            overlay.NotifyMoved();
             if (settings.Enabled && detector.Feed(x, y, Environment.TickCount64)) overlay.Pulse();
         };
 

@@ -7,11 +7,11 @@ sealed class Settings
 {
     public bool Enabled { get; set; } = true;
     public int Scale { get; set; } = 4;               // size of the enlarged pointer relative to a normal one
-    public double HoldSeconds { get; set; } = 2;      // how long it stays enlarged after the last shake
+    public double ShrinkSeconds { get; set; } = 2;    // how long the slow shrink takes once the mouse is still
     public int Sensitivity { get; set; } = 1;         // 0 low, 1 medium, 2 high
 
     static string FilePath => Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "RosewoodPointerFinder", "settings.json");
+        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PointerFinder", "settings.json");
 
     public static Settings Load()
     {
