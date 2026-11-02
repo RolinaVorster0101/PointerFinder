@@ -18,7 +18,7 @@ Look for the arrow in the system tray (it may be under the `^` overflow arrow).
 
 1. Shake the mouse: the big pointer pops in, tip on the real pointer.
 2. It stays big while the mouse moves, for at most 5 seconds after the last shake.
-3. When the mouse is still for about a quarter of a second it starts shrinking slowly and fades out.
+3. As soon as the mouse is still (about a tenth of a second) it starts shrinking, quickly at first and then easing out, down to normal size.
 4. Moving again while it shrinks makes it grow back. A new shake restarts everything.
 
 ## Tray menu

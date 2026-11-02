@@ -18,7 +18,7 @@ sealed class Overlay : Window
 {
     const double NormalHeight = 26;   // DIPs: height of the regular cursor, so Scale = 4 means "4x bigger"
     const double Pad = 30;            // room around the arrow for the glow
-    const long StillMs = 250;         // how long the mouse must be still before the shrink starts
+    const long StillMs = 100;         // how long the mouse must be still before the shrink starts
     const long MaxBigMs = 5000;       // after this long since the last shake it shrinks even if the mouse keeps moving
 
     enum Phase { Hidden, Big, Shrinking }
@@ -141,7 +141,7 @@ sealed class Overlay : Window
         _phase = Phase.Shrinking;
         int generation = ++_generation;
         var length = TimeSpan.FromSeconds(_shrinkSeconds);
-        var shrink = new DoubleAnimation(_small, length) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut } };
+        var shrink = new DoubleAnimation(_small, length) { EasingFunction = new SineEase { EasingMode = EasingMode.EaseOut } };   // ease-out: visibly starts shrinking straight away
         shrink.Completed += (_, _) =>
         {
             if (generation != _generation) return;
