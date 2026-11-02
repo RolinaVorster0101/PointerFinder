@@ -19,7 +19,8 @@ Look for the arrow in the system tray (it may be under the `^` overflow arrow).
 1. Shake the mouse: the big pointer pops in, tip on the real pointer.
 2. It stays big while the mouse moves, for at most 5 seconds after the last shake.
 3. As soon as the mouse is still (about a tenth of a second) it starts shrinking, quickly at first and then easing out, down to normal size.
-4. Moving again while it shrinks makes it grow back. A new shake restarts everything.
+4. Once the shrink has started it always finishes: moving does not bring it back, and a new shake is only
+   recognised after the real pointer is back. (A shake while it is still big keeps it big.)
 
 ## Tray menu
 

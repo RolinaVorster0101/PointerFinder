@@ -10,9 +10,10 @@ using System.Windows.Threading;
 namespace PointerFinder;
 
 /// <summary>
-/// Click-through, always-on-top window that draws an enlarged copy of the Rosewood arrow at the pointer.
-/// The arrow's tip stays exactly on the real pointer's hotspot. It stays big while the mouse moves, then slowly
-/// shrinks once the mouse is still. Moving again while it shrinks makes it grow back; a shake restarts everything.
+/// Click-through, always-on-top window that draws an enlarged arrow at the pointer.
+/// The arrow's tip stays exactly on the real pointer's hotspot. It stays big while the mouse moves, then shrinks once
+/// the mouse is still. Once the shrink has started it always finishes: movement does not bring it back, and a new
+/// shake is only recognised after the real pointer has returned.
 /// </summary>
 sealed class Overlay : Window
 {
@@ -103,18 +104,13 @@ sealed class Overlay : Window
         GrowBack();
     }
 
-    /// <summary>Call on every mouse movement. While shrinking, movement brings the pointer back to full size.</summary>
+    /// <summary>True from the moment the shrink starts until the real pointer is back. Shakes are ignored meanwhile.</summary>
+    public bool IsShrinking => _phase == Phase.Shrinking;
+
+    /// <summary>Call on every mouse movement. Only matters while big: movement keeps it big until the mouse is still.</summary>
     public void NotifyMoved()
     {
-        if (_phase == Phase.Hidden) return;
-        long now = Environment.TickCount64;
-        _lastMoveMs = now;
-        if (_phase == Phase.Shrinking && now - _lastShakeMs < MaxBigMs)
-        {
-            _generation++;   // invalidates the shrink that is currently running
-            _phase = Phase.Big;
-            GrowBack();
-        }
+        if (_phase == Phase.Big) _lastMoveMs = Environment.TickCount64;
     }
 
     void OnTick()

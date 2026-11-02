@@ -24,6 +24,7 @@ static class Program
         hook.Moved += (x, y) =>
         {
             overlay.NotifyMoved();
+            if (overlay.IsShrinking) { detector.Reset(); return; }   // a shrink always finishes before the next shake counts
             if (settings.Enabled && detector.Feed(x, y, Environment.TickCount64)) overlay.Pulse();
         };
 

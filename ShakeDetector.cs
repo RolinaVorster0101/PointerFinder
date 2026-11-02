@@ -19,6 +19,9 @@ sealed class ShakeDetector
 
     public int Sensitivity { get; set; } = 1;
 
+    /// <summary>Forget any swings seen so far (used while the shrink animation runs, so they cannot add up to a shake).</summary>
+    public void Reset() { _x.Reset(); _y.Reset(); }
+
     /// <summary>Feed every mouse position. Returns true once when a shake is recognised.</summary>
     public bool Feed(int x, int y, long nowMs)
     {
