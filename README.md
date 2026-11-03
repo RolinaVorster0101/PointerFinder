@@ -34,7 +34,10 @@ Look for the arrow in the system tray (it may be under the `^` overflow arrow).
 | Start with Windows | Adds or removes a `Run` entry in `HKCU` |
 | Exit | Quit |
 
-Settings are saved in `%APPDATA%\PointerFinder\settings.json`.
+Settings are saved in `%APPDATA%\PointerFinder\settings.json`. The program watches that file, so changes made while it runs
+apply straight away. That is how the **Pointer** tab in PCSteward changes them (size, shrink time, sensitivity, on/off, start with
+Windows) without needing the tray menu. PCSteward also starts and stops it, and the "Show pointer now" button there, through two
+named events the program listens on: `PointerFinder.Pulse` and `PointerFinder.Quit`.
 
 ## How it works
 

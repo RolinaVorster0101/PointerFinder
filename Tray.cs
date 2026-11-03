@@ -14,6 +14,7 @@ sealed class Tray : IDisposable
     readonly Overlay _overlay;
     readonly ShakeDetector _detector;
     readonly Forms.NotifyIcon _icon;
+    readonly List<Action> _sync = new();   // each refreshes one menu item's check mark from the settings
 
     public Tray(Settings settings, Overlay overlay, ShakeDetector detector, Action exit)
     {
@@ -36,18 +37,21 @@ sealed class Tray : IDisposable
         var enabled = new Forms.ToolStripMenuItem("Shake to find is on") { CheckOnClick = true, Checked = _settings.Enabled };
         enabled.Click += (_, _) => { _settings.Enabled = enabled.Checked; _settings.Save(); };
         menu.Items.Add(enabled);
+        _sync.Add(() => enabled.Checked = _settings.Enabled);
 
-        menu.Items.Add(Choice("Size", _settings.Scale, new[] { (3, "Medium (3x)"), (4, "Large (4x)"), (6, "Huge (6x)") },
+        menu.Items.Add(Choice("Size", () => _settings.Scale, new[] { (3, "Medium (3x)"), (4, "Large (4x)"), (6, "Huge (6x)") },
             v => { _settings.Scale = v; Apply(); }));
-        menu.Items.Add(Choice("Shrinks over", (int)_settings.ShrinkSeconds, new[] { (1, "1 second"), (2, "2 seconds"), (3, "3 seconds"), (5, "5 seconds") },
+        menu.Items.Add(Choice("Shrinks over", () => (int)_settings.ShrinkSeconds, new[] { (1, "1 second"), (2, "2 seconds"), (3, "3 seconds"), (5, "5 seconds") },
             v => { _settings.ShrinkSeconds = v; Apply(); }));
-        menu.Items.Add(Choice("Sensitivity", _settings.Sensitivity, new[] { (0, "Low"), (1, "Medium"), (2, "High") },
+        menu.Items.Add(Choice("Sensitivity", () => _settings.Sensitivity, new[] { (0, "Low"), (1, "Medium"), (2, "High") },
             v => { _settings.Sensitivity = v; Apply(); }));
 
         menu.Items.Add(new Forms.ToolStripSeparator());
         var startup = new Forms.ToolStripMenuItem("Start with Windows") { CheckOnClick = true, Checked = IsAutostart() };
         startup.Click += (_, _) => SetAutostart(startup.Checked);
         menu.Items.Add(startup);
+        _sync.Add(() => startup.Checked = IsAutostart());
+        menu.Opening += (_, _) => Refresh();
         menu.Items.Add(new Forms.ToolStripSeparator());
         menu.Items.Add("Exit", null, (_, _) => exit());
 
@@ -64,17 +68,25 @@ sealed class Tray : IDisposable
 
     void Apply()
     {
-        _overlay.Configure(_settings.Scale, _settings.ShrinkSeconds);
-        _detector.Sensitivity = _settings.Sensitivity;
+        Refresh();
         _settings.Save();
     }
 
-    static Forms.ToolStripMenuItem Choice(string title, int current, (int Value, string Label)[] options, Action<int> onPick)
+    /// <summary>Push the current settings into the overlay, the detector and the menu (also used when another program edits the file).</summary>
+    public void Refresh()
+    {
+        _overlay.Configure(_settings.Scale, _settings.ShrinkSeconds);
+        _detector.Sensitivity = _settings.Sensitivity;
+        foreach (var sync in _sync) sync();
+    }
+
+    Forms.ToolStripMenuItem Choice(string title, Func<int> current, (int Value, string Label)[] options, Action<int> onPick)
     {
         var parent = new Forms.ToolStripMenuItem(title);
         foreach (var (value, label) in options)
         {
-            var item = new Forms.ToolStripMenuItem(label) { Checked = value == current };
+            var item = new Forms.ToolStripMenuItem(label) { Checked = value == current() };
+            _sync.Add(() => item.Checked = value == current());
             item.Click += (_, _) =>
             {
                 foreach (Forms.ToolStripMenuItem sibling in parent.DropDownItems) sibling.Checked = false;

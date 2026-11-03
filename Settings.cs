@@ -10,13 +10,24 @@ sealed class Settings
     public double ShrinkSeconds { get; set; } = 2;    // how long the slow shrink takes once the mouse is still
     public int Sensitivity { get; set; } = 1;         // 0 low, 1 medium, 2 high
 
-    static string FilePath => Path.Combine(
+    public static string FilePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "PointerFinder", "settings.json");
 
-    public static Settings Load()
+        public static Settings Load() => TryLoad() ?? new Settings();
+
+    /// <summary>Null when the file is missing or half-written (another program may be saving it at that moment).</summary>
+    public static Settings? TryLoad()
     {
-        try { return JsonSerializer.Deserialize<Settings>(File.ReadAllText(FilePath)) ?? new Settings(); }
-        catch { return new Settings(); }
+        try { return JsonSerializer.Deserialize<Settings>(File.ReadAllText(FilePath)); }
+        catch { return null; }
+    }
+
+    public void CopyFrom(Settings other)
+    {
+        Enabled = other.Enabled;
+        Scale = other.Scale;
+        ShrinkSeconds = other.ShrinkSeconds;
+        Sensitivity = other.Sensitivity;
     }
 
     public void Save()
